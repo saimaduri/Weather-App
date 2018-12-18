@@ -27,6 +27,8 @@ import java.net.URLConnection;
 public class MainActivity extends AppCompatActivity {
 
     TextView tv;
+    TextView quotes;
+    TextView city;
     EditText editText;
     TextView tvtime;
     TextView tvweather;
@@ -49,12 +51,10 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView5;
     TextView tvtemp5;
 
-
     private static final String TAG = "MainActivity";
 
     String apikey = "a5e8f2d8bc0af9455d020b385e25fa40";
     String code = "94016";
-//    TemperatureThread temperatureThread = new TemperatureThread();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +62,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         tv = findViewById(R.id.tvtemp);
+        quotes = findViewById(R.id.quote);
         editText = findViewById(R.id.editText);
         tvtime = findViewById(R.id.tvtime);
+        city = findViewById(R.id.city);
         tvweather = findViewById(R.id.tvweather);
         layout = findViewById(R.id.appbackground);
         currentweatherimage = findViewById(R.id.imageView);
@@ -93,11 +95,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 code = s.toString();
-                if (s.length() == 5) {
-                    editText.setVisibility(View.INVISIBLE);
-                    editText.setClickable(false);
-                    editText.setEnabled(false);
-                }
             }
 
             @Override
@@ -120,14 +117,20 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(String... strings) {
 
             try {
-                String code = strings[0];
-                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast?zip="+code+"&appid=a5e8f2d8bc0af9455d020b385e25fa40");
-                URLConnection urlConnection = url.openConnection();
-                InputStream inputStream = urlConnection.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-                string = br.readLine();
+                while (string == "\"cod\":\"400\",\"message\":\"invalid zip code" || string.equals("")){
+                    String code = strings[0];
+                    URL url = new URL("http://api.openweathermap.org/data/2.5/forecast?zip=" + code + "&appid=a5e8f2d8bc0af9455d020b385e25fa40");
+                    URLConnection urlConnection = url.openConnection();
+                    InputStream inputStream = urlConnection.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+                    string = br.readLine();
+                }
 
-            } catch (IOException e) {
+                editText.setVisibility(View.INVISIBLE);
+                editText.setClickable(false);
+                editText.setEnabled(false);
+
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -139,38 +142,42 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
 
             try {
+
                 JSONObject jsonObject = new JSONObject(string);
                 JSONArray fullforecast = jsonObject.getJSONArray("list");
                 JSONObject currentday = fullforecast.getJSONObject(0);
 
+                city.setText(jsonObject.getJSONObject("city").getString("name"));
+
                 String weather = currentday.getJSONArray("weather").getJSONObject(0).getString("main");
                 tvweather.setText(weather);
+                setQuote(weather);
 
                 String[] timelist = currentday.getString("dt_txt").split(" ");
                 String time = convertTime(timelist[1]);
                 switch (time) {
-                    case "12 AM":
+                    case "1 AM":
                         layout.setBackgroundResource(R.drawable.night);
                         break;
-                    case "3 AM":
+                    case "4 AM":
                         layout.setBackgroundResource(R.drawable.night);
                         break;
-                    case "6 AM":
+                    case "7 AM":
                         layout.setBackgroundResource(R.drawable.sunrise);
                         break;
-                    case "9 AM":
+                    case "10 AM":
                         layout.setBackgroundResource(R.drawable.earlymorning);
                         break;
-                    case "12 PM":
+                    case "1 PM":
                         layout.setBackgroundResource(R.drawable.morning);
                         break;
-                    case "3 PM":
+                    case "4 PM":
                         layout.setBackgroundResource(R.drawable.morning);
                         break;
-                    case "6 PM":
+                    case "7 PM":
                         layout.setBackgroundResource(R.drawable.sunset);
                         break;
-                    case "9 PM":
+                    case "10 PM":
                         layout.setBackgroundResource(R.drawable.earlynight);
                         break;
                 }
@@ -216,12 +223,18 @@ public class MainActivity extends AppCompatActivity {
     public String convertTime(String string) {
         String[] timelist = string.split(":");
         String ap = "";
-        if (Integer.parseInt(timelist[0]) < 12) {
+        int timeint = Integer.parseInt(timelist[0]);
+        timeint-=5;
+
+        if (timeint < 12 && timeint > 0) {
             ap = "AM";
         } else {
             ap = "PM";
         }
-        int timeint = (Integer.parseInt(timelist[0]) % 12);
+        timeint = timeint%12;
+        if (timeint < 0) {
+            timeint+=12;
+        }
         String time = Integer.toString(timeint);
         if (time.equals("0")) {
             time = "12";
@@ -261,5 +274,35 @@ public class MainActivity extends AppCompatActivity {
         double temperature = Double.parseDouble(string);
         double fahrenheit = (double)(Math.round((temperature-273)*1.8+32));
         tv.setText((int)fahrenheit+"°");
+    }
+
+    public void setQuote(String string) {
+        switch (string) {
+            case "Rain":
+                if ((int) (Math.random() * 2) == 0) {
+                    quotes.setText("\"Rain is a major component of the water cycle and is responsible for depositing most of the fresh water on the Earth!\"");
+                } else {
+                    quotes.setText("\"Rain is liquid water in the form of droplets!\"");
+                }
+                break;
+            case "Thunderstorm":
+                if ((int) (Math.random() * 2) == 0) {
+                    quotes.setText("\"A thunderstorm is also known as an electrical storm, lightning storm, or thundershower.\"");
+                } else {
+                    quotes.setText("\"Thunderstorms occur in a type of cloud known as a cumulonimbus\"");
+                }
+            case "Drizzle":
+                quotes.setText("\"Drizzle is a light liquid precipitation consisting of liquid water drops.\"");
+                break;
+            case "Snow":
+                quotes.setText("\"Snow refers to forms of ice crystals that precipitate from the atmosphere.\"");
+                break;
+            case "Clear":
+                quotes.setText("\"Clear means there are no clouds in the sky!\"");
+                break;
+            case "Clouds":
+                quotes.setText("\"Cloudy means the entire sky is covered by clouds!\"");
+                break;
+        }
     }
 }
