@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,19 +38,23 @@ public class MainActivity extends AppCompatActivity {
 
     TextView tvtime2;
     ImageView imageView2;
-    TextView tvtemp2;
+    TextView tvhigh2;
+    TextView tvlow2;
 
     TextView tvtime3;
     ImageView imageView3;
-    TextView tvtemp3;
+    TextView tvhigh3;
+    TextView tvlow3;
 
     TextView tvtime4;
     ImageView imageView4;
-    TextView tvtemp4;
+    TextView tvhigh4;
+    TextView tvlow4;
 
     TextView tvtime5;
     ImageView imageView5;
-    TextView tvtemp5;
+    TextView tvhigh5;
+    TextView tvlow5;
 
     private static final String TAG = "MainActivity";
 
@@ -72,19 +77,23 @@ public class MainActivity extends AppCompatActivity {
 
         tvtime2 = findViewById(R.id.tvtime2);
         imageView2 = findViewById(R.id.imageView2);
-        tvtemp2 = findViewById(R.id.tvtemp2);
+        tvhigh2 = findViewById(R.id.tvhigh2);
+        tvlow2 = findViewById(R.id.tvlow2);
 
         tvtime3 = findViewById(R.id.tvtime3);
         imageView3 = findViewById(R.id.imageView3);
-        tvtemp3 = findViewById(R.id.tvtemp3);
+        tvhigh3 = findViewById(R.id.tvhigh3);
+        tvlow3 = findViewById(R.id.tvlow3);
 
         tvtime4 = findViewById(R.id.tvtime4);
         imageView4 = findViewById(R.id.imageView4);
-        tvtemp4 = findViewById(R.id.tvtemp4);
+        tvhigh4 = findViewById(R.id.tvhigh4);
+        tvlow4 = findViewById(R.id.tvlow4);
 
         tvtime5 = findViewById(R.id.tvtime5);
         imageView5 = findViewById(R.id.imageView5);
-        tvtemp5 = findViewById(R.id.tvtemp5);
+        tvhigh5 = findViewById(R.id.tvhigh5);
+        tvlow5 = findViewById(R.id.tvlow5);
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -190,29 +199,22 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject time2 = fullforecast.getJSONObject(1);
                 setTime(tvtime2, time2.getString("dt_txt").split(" "));
                 setImage(imageView2, time2.getJSONArray("weather").getJSONObject(0).getString("main"));
-                setTemperature(tvtemp2, time2.getJSONObject("main").get("temp").toString());
+                setHighLow(tvhigh2, tvlow2, time2.getJSONObject("main").get("temp_max").toString(), time2.getJSONObject("main").get("temp_min").toString());
 
                 JSONObject time3 = fullforecast.getJSONObject(2);
                 setTime(tvtime3, time3.getString("dt_txt").split(" "));
                 setImage(imageView3, time3.getJSONArray("weather").getJSONObject(0).getString("main"));
-                setTemperature(tvtemp3, time3.getJSONObject("main").get("temp").toString());
+                setHighLow(tvhigh3, tvlow3, time3.getJSONObject("main").get("temp_max").toString(), time3.getJSONObject("main").get("temp_min").toString());
 
                 JSONObject time4 = fullforecast.getJSONObject(3);
                 setTime(tvtime4, time4.getString("dt_txt").split(" "));
                 setImage(imageView4, time4.getJSONArray("weather").getJSONObject(0).getString("main"));
-                setTemperature(tvtemp4, time4.getJSONObject("main").get("temp").toString());
+                setHighLow(tvhigh4, tvlow4, time4.getJSONObject("main").get("temp_max").toString(), time4.getJSONObject("main").get("temp_min").toString());
 
                 JSONObject time5 = fullforecast.getJSONObject(4);
                 setTime(tvtime5, time5.getString("dt_txt").split(" "));
                 setImage(imageView5, time5.getJSONArray("weather").getJSONObject(0).getString("main"));
-                setTemperature(tvtemp5, time5.getJSONObject("main").get("temp").toString());
-
-
-
-
-
-
-
+                setHighLow(tvhigh5, tvlow5, time5.getJSONObject("main").get("temp_max").toString(), time5.getJSONObject("main").get("temp_min").toString());
 
             } catch (Exception e) {
 
@@ -276,6 +278,17 @@ public class MainActivity extends AppCompatActivity {
         tv.setText((int)fahrenheit+"°");
     }
 
+    public int convertTemperature(String string) {
+        double temperature = Double.parseDouble(string);
+        double fahrenheit = (double)(Math.round((temperature-273)*1.8+32));
+        return (int)fahrenheit;
+    }
+
+    public void setHighLow(TextView tvhigh, TextView tvlow, String high, String low) {
+        tvhigh.setText("H: " + convertTemperature(high));
+        tvlow.setText("L: " + convertTemperature(low));
+    }
+
     public void setQuote(String string) {
         switch (string) {
             case "Rain":
@@ -292,10 +305,18 @@ public class MainActivity extends AppCompatActivity {
                     quotes.setText("\"Thunderstorms occur in a type of cloud known as a cumulonimbus\"");
                 }
             case "Drizzle":
-                quotes.setText("\"Drizzle is a light liquid precipitation consisting of liquid water drops.\"");
+                if ((int) (Math.random() * 2) == 0) {
+                    quotes.setText("\"Drizzle is a light liquid precipitation consisting of liquid water drops.\"");
+                } else {
+                    quotes.setText("\"Drizzle drops are smaller than rain drops!\"");
+                }
                 break;
             case "Snow":
-                quotes.setText("\"Snow refers to forms of ice crystals that precipitate from the atmosphere.\"");
+                if ((int) (Math.random() * 2) == 0) {
+                    quotes.setText("\"Snow refers to forms of ice crystals that precipitate from the atmosphere.\"");
+                } else {
+                    quotes.setText("\"Snowstorms organize and develop by feeding on sources of atmospheric moisture and cold air!\"");
+                }
                 break;
             case "Clear":
                 quotes.setText("\"Clear means there are no clouds in the sky!\"");
