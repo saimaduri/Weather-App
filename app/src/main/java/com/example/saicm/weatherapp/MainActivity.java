@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     TextView tvhigh5;
     TextView tvlow5;
 
+    Button backbutton;
     private static final String TAG = "MainActivity";
 
     String apikey = "a5e8f2d8bc0af9455d020b385e25fa40";
@@ -95,6 +96,15 @@ public class MainActivity extends AppCompatActivity {
         tvhigh5 = findViewById(R.id.tvhigh5);
         tvlow5 = findViewById(R.id.tvlow5);
 
+        backbutton = findViewById(R.id.backbutton);
+        backbutton.setBackgroundResource(R.drawable.backbutton);
+        backbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layout.setBackgroundResource(R.drawable.background);
+                clearAll();
+            }
+        });
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -135,10 +145,6 @@ public class MainActivity extends AppCompatActivity {
                     string = br.readLine();
                 }
 
-                editText.setVisibility(View.INVISIBLE);
-                editText.setClickable(false);
-                editText.setEnabled(false);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -155,6 +161,10 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(string);
                 JSONArray fullforecast = jsonObject.getJSONArray("list");
                 JSONObject currentday = fullforecast.getJSONObject(0);
+
+                editText.setVisibility(View.INVISIBLE);
+                editText.setEnabled(false);
+                backbutton.setVisibility(View.VISIBLE);
 
                 city.setText(jsonObject.getJSONObject("city").getString("name"));
 
@@ -325,5 +335,40 @@ public class MainActivity extends AppCompatActivity {
                 quotes.setText("\"Cloudy means the entire sky is covered by clouds!\"");
                 break;
         }
+    }
+
+    public void clearAll() {
+
+        editText.setVisibility(View.VISIBLE);
+        editText.setEnabled(true);
+        backbutton.setVisibility(View.INVISIBLE);
+
+        tv.setText("");
+        quotes.setText("");
+        city.setText("");
+        editText.setText("");
+        tvtime.setText("");
+        tvweather.setText("");
+        currentweatherimage.setImageDrawable(null);
+
+        tvtime2.setText("");
+        imageView2.setImageDrawable(null);
+        tvhigh2.setText("");
+        tvlow2.setText("");
+
+        tvtime3.setText("");
+        imageView3.setImageDrawable(null);
+        tvhigh3.setText("");
+        tvlow3.setText("");
+
+        tvtime4.setText("");
+        imageView4.setImageDrawable(null);
+        tvhigh4.setText("");
+        tvlow4.setText("");
+
+        tvtime5.setText("");
+        imageView5.setImageDrawable(null);
+        tvhigh5.setText("");
+        tvlow5.setText("");
     }
 }
